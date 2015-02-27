@@ -124,6 +124,7 @@ struct _ply_boot_splash_plugin
         uint32_t                            background_end_color;
 
         progress_function_t                 progress_function;
+        double                              show_animation_percent;
 
         ply_trigger_t                      *idle_trigger;
         ply_trigger_t                      *stop_trigger;
@@ -655,6 +656,13 @@ create_plugin (ply_key_file_t *key_file)
                 }
         }
 
+        show_animation_percent = ply_key_file_get_value (key_file, "two-step", "ShowAnimationPercent");
+        if (show_animation_percent != NULL)
+                plugin->show_animation_percent = strtod (show_animation_percent, NULL);
+        else
+                plugin->show_animation_percent = .9;
+        free (show_animation_percent);
+
         plugin->views = ply_list_new ();
 
         return plugin;
@@ -1147,7 +1155,7 @@ on_boot_progress (ply_boot_splash_plugin_t *plugin,
         if (plugin->is_idle)
                 return;
 
-        if (percent_done >= SHOW_ANIMATION_PERCENT) {
+        if (percent_done >= plugin->show_animation_percent) {
                 if (plugin->stop_trigger == NULL) {
                         ply_trace ("boot progressed to end");
 
